@@ -4,45 +4,72 @@
   <meta charset="UTF-8">
   <title>Salon MVP</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f7f7f7;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .container {
+      padding: 16px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      margin: 0 0 8px;
+    }
+
+    .hint {
+      color: #666;
+      font-size: 14px;
+    }
+  </style>
 </head>
+
 <body>
 
-<h2>💅 Salon MVP</h2>
-<div id="app">Загрузка...</div>
+<div class="container">
+  <div class="card">
+    <h2>💅 Salon MVP</h2>
+    <div id="user" class="hint">Загрузка...</div>
+  </div>
+
+  <div class="card">
+    <div class="hint">
+      Нажмите кнопку внизу, чтобы создать салон
+    </div>
+  </div>
+</div>
 
 <script>
 const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();
 
-/**
- * 🔧 НАСТРОЙКА API
- * для dev / prod
- */
-const API_BASE = "http://localhost:8000"; // dev
-
 const user = tg.initDataUnsafe?.user;
 
-/**
- * ❌ Если user не передан — дальше нельзя
- */
 if (!user) {
-  document.getElementById("app").innerText =
+  document.getElementById("user").innerText =
     "❌ Откройте приложение через кнопку бота";
   tg.MainButton.hide();
-  throw new Error("User not provided by Telegram");
+  throw new Error("No Telegram user");
 }
 
-/**
- * UI
- */
-document.getElementById("app").innerHTML =
-  `Привет, <b>${user.first_name}</b>`;
+document.getElementById("user").innerText =
+  `👤 ${user.first_name} (@${user.username || "—"})`;
 
-/**
- * Main Button
- */
 tg.MainButton.setText("Создать салон");
 tg.MainButton.show();
 
@@ -54,25 +81,20 @@ tg.MainButton.onClick(async () => {
   tg.MainButton.setText("Создаём...");
 
   try {
-    const res = await fetch(`${API_BASE}/salon/create`, {
+    const res = await fetch("http://localhost:8000/salon/create", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {"Content-Type": "application/json"},
       body: JSON.stringify({
         name,
         telegram_id: user.id
       })
     });
 
-    if (!res.ok) {
-      throw new Error("Ошибка сервера");
-    }
-
     const data = await res.json();
     alert("✅ Салон создан: " + data.name);
 
-  } catch (err) {
-    alert("❌ Не удалось создать салон");
-    console.error(err);
+  } catch (e) {
+    alert("❌ Ошибка создания салона");
   } finally {
     tg.MainButton.enable();
     tg.MainButton.setText("Создать салон");
