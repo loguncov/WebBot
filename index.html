@@ -29,15 +29,13 @@
 <div id="status"></div>
 <pre id="dump"></pre>
 
-<button onclick="send()">📤 Отправить данные боту</button>
-
 <script>
   const tg = window.Telegram.WebApp;
   tg.ready();
   tg.expand();
 
+  // --- вывод данных ---
   const dump = {
-    initData: tg.initData,
     initDataUnsafe: tg.initDataUnsafe
   };
 
@@ -52,13 +50,17 @@
       "❌ User НЕ передан";
   }
 
-  function send() {
+  // --- НАСТРОЙКА MAIN BUTTON ---
+  tg.MainButton.setText("📤 Отправить данные боту");
+  tg.MainButton.show();
+
+  tg.MainButton.onClick(() => {
     tg.sendData(JSON.stringify({
       action: "test",
       timestamp: Date.now(),
       user: tg.initDataUnsafe?.user || null
     }));
-  }
+  });
 </script>
 
 </body>
