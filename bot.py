@@ -1,0 +1,47 @@
+import asyncio
+from aiogram import Bot, Dispatcher
+from aiogram.types import (
+    Message,
+    ReplyKeyboardMarkup,
+    KeyboardButton,
+    WebAppInfo
+)
+
+BOT_TOKEN = "PASTE_YOUR_TOKEN_HERE"
+WEB_APP_URL = "https://YOUR_DOMAIN/index.html"
+
+bot = Bot(BOT_TOKEN)
+dp = Dispatcher()
+
+@dp.message()
+async def handler(message: Message):
+    # Если данные пришли из Web App
+    if message.web_app_data:
+        await message.answer(
+            f"📦 Данные из Web App:\n{message.web_app_data.data}"
+        )
+        return
+
+    # Обычное сообщение → показываем кнопку
+    kb = ReplyKeyboardMarkup(
+        keyboard=[
+            [
+                KeyboardButton(
+                    text="🚀 Открыть Web App",
+                    web_app=WebAppInfo(url=WEB_APP_URL)
+                )
+            ]
+        ],
+        resize_keyboard=True
+    )
+
+    await message.answer(
+        "Нажми кнопку, чтобы открыть тестовое Web App",
+        reply_markup=kb
+    )
+
+async def main():
+    await dp.start_polling(bot)
+
+if __name__ == "__main__":
+    asyncio.run(main())
