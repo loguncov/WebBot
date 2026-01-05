@@ -4,26 +4,21 @@
   <meta charset="UTF-8" />
   <title>Telegram Web App Test</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
   <style>
     body {
       font-family: system-ui, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background: var(--bg, #ffffff);
-      color: #222;
-    }
-    button {
-      padding: 12px 16px;
-      font-size: 16px;
-      margin-top: 12px;
+      padding: 16px;
     }
     pre {
       background: #f4f4f4;
       padding: 10px;
+      font-size: 13px;
       overflow-x: auto;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px;
     }
   </style>
 </head>
@@ -31,37 +26,37 @@
 
 <h2>🚀 Telegram Web App</h2>
 
-<div id="info"></div>
+<div id="status"></div>
+<pre id="dump"></pre>
 
-<button onclick="changeColor()">🎨 Сменить фон</button>
-<button onclick="sendData()">📤 Отправить данные боту</button>
+<button onclick="send()">📤 Отправить данные боту</button>
 
 <script>
   const tg = window.Telegram.WebApp;
   tg.ready();
+  tg.expand();
 
-  const user = tg.initDataUnsafe?.user;
+  const dump = {
+    initData: tg.initData,
+    initDataUnsafe: tg.initDataUnsafe
+  };
 
-  document.getElementById("info").innerHTML = `
-    <p><b>User ID:</b> ${user?.id}</p>
-    <p><b>Имя:</b> ${user?.first_name}</p>
-    <p><b>Username:</b> @${user?.username}</p>
-    <pre>${JSON.stringify(user, null, 2)}</pre>
-  `;
+  document.getElementById("dump").textContent =
+    JSON.stringify(dump, null, 2);
 
-  function changeColor() {
-    const colors = ["#fef3c7", "#dcfce7", "#e0f2fe", "#fae8ff"];
-    document.body.style.setProperty(
-      "--bg",
-      colors[Math.floor(Math.random() * colors.length)]
-    );
+  if (tg.initDataUnsafe?.user) {
+    document.getElementById("status").innerHTML =
+      "✅ User передан: " + tg.initDataUnsafe.user.id;
+  } else {
+    document.getElementById("status").innerHTML =
+      "❌ User НЕ передан";
   }
 
-  function sendData() {
+  function send() {
     tg.sendData(JSON.stringify({
       action: "test",
       timestamp: Date.now(),
-      user_id: user?.id
+      user: tg.initDataUnsafe?.user || null
     }));
   }
 </script>

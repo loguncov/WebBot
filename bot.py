@@ -1,38 +1,34 @@
 import asyncio
+from config import BOT_TOKEN, WEB_APP_URL
 from aiogram import Bot, Dispatcher
 from aiogram.types import (
     Message,
-    ReplyKeyboardMarkup,
-    KeyboardButton,
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
     WebAppInfo
 )
-
-BOT_TOKEN = "PASTE_YOUR_TOKEN_HERE"
-WEB_APP_URL = "https://YOUR_DOMAIN/index.html"
 
 bot = Bot(BOT_TOKEN)
 dp = Dispatcher()
 
 @dp.message()
 async def handler(message: Message):
-    # Если данные пришли из Web App
+    # данные из Web App
     if message.web_app_data:
         await message.answer(
             f"📦 Данные из Web App:\n{message.web_app_data.data}"
         )
         return
 
-    # Обычное сообщение → показываем кнопку
-    kb = ReplyKeyboardMarkup(
-        keyboard=[
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
             [
-                KeyboardButton(
+                InlineKeyboardButton(
                     text="🚀 Открыть Web App",
                     web_app=WebAppInfo(url=WEB_APP_URL)
                 )
             ]
-        ],
-        resize_keyboard=True
+        ]
     )
 
     await message.answer(
